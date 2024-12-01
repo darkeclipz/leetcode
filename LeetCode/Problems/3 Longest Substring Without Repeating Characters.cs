@@ -6,9 +6,9 @@
 
 namespace LeetCode.Problems;
 
-public static class Problem3 
+public class Problem3 
 {
-    public static int LengthOfLongestSubstring(string s)
+    public int LengthOfLongestSubstring(string s)
     {
         if (s.Length <= 1) return s.Length;
 
