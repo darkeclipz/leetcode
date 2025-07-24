@@ -39,8 +39,6 @@ class Node:
     weight: int
     children: List[Node]
     _id_counter: ClassVar[int] = 0
-    def __repr__(self): 
-        return f"'{self.character}' (weight={self.weight}, has_parent={self.parent!=None})"
     @staticmethod
     def new_leaf(character: str | None, weight: int):
         Node._id_counter += 1

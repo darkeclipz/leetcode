@@ -1,4 +1,5 @@
 from typing import List
+import heapq
 
 NUM_CELLS = 81
 NUM_DIGITS = 9
@@ -34,9 +35,9 @@ groups = [
 ]
 
 class SudokuSolver:
-    assignments = 0
-    unassignments = 0
     def __init__(self):
+        self.assignments = 0
+        self.unassignments = 0
         self.cells = [None] * NUM_CELLS
         self.available_digits = [[True] * NUM_DIGITS for _ in range(NUM_CELLS)]
         self.in_group = [[] for _ in range(NUM_CELLS)]
@@ -44,37 +45,57 @@ class SudokuSolver:
         for group in groups:
             for cell in group:
                 self.in_group[cell].append(group)
-    def solve(self, idx=0):
-        if idx >= NUM_CELLS:
+
+    def solve(self) -> bool:
+        if all(cell is not None for cell in self.cells):
             return True
-        if self.cells[idx] != None:
-            if self.solve(idx + 1):
-                return True
+
+        idx = self._find_mrv_cell()
+        if idx is None:
+            return False
+
         for value, available in enumerate(self.available_digits[idx]):
             if available:
                 if self.set(idx, value):
-                    if self.solve(idx + 1):
+                    if self.solve():
                         return True
                 self.unset(idx, value)
+
         return False
-    def set(self, idx, value) -> bool:
+
+    def _find_mrv_cell(self) -> int | None:
+        min_options = NUM_DIGITS + 1
+        best_idx = None
+        for idx, cell in enumerate(self.cells):
+            if cell is None:
+                options = sum(self.available_digits[idx])
+                if options < min_options:
+                    min_options = options
+                    best_idx = idx
+                    if options == 1:
+                        break
+        return best_idx
+
+    def set(self, idx: int, value: int) -> bool:
         self.assignments += 1
         self.cells[idx] = value
         propagations = []
         self.propagations.append(propagations)
+
         for group in self.in_group[idx]:
             for cell in group:
                 if cell != idx and self.available_digits[cell][value]:
                     self.available_digits[cell][value] = False
                     propagations.append((cell, value))
-                    if not any(self.available_digits[cell]):
+                    if not any(self.available_digits[cell]) and self.cells[cell] is None:
                         return False
         return True
-    def unset(self, idx, value):
+
+    def unset(self, idx: int, value: int):
         self.unassignments += 1
         self.cells[idx] = None
-        for shared_cell, value in self.propagations.pop():
-            self.available_digits[shared_cell][value] = True
+        for cell, val in self.propagations.pop():
+            self.available_digits[cell][val] = True
 
 def get_leetcode_result(solver: SudokuSolver):
     rows = []
