@@ -47,12 +47,10 @@ class SudokuSolver:
                 self.in_group[cell].append(group)
 
     def solve(self) -> bool:
-        if all(cell is not None for cell in self.cells):
-            return True
 
         idx = self._find_mrv_cell()
         if idx is None:
-            return False
+            return all(cell is not None for cell in self.cells)
 
         for value, available in enumerate(self.available_digits[idx]):
             if available:
